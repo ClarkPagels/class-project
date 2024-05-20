@@ -1,0 +1,109 @@
+<!--
+@license
+Copyright 2019 Google LLC. All Rights Reserved.
+SPDX-License-Identifier: Apache-2.0
+-->
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+         integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+           integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+           crossorigin="anonymous">
+   </script>
+   <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+   <meta charset="utf-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+   <link rel="stylesheet" href="{% static 'users/style.css' %}">
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCIgCa4b0DzRT4UA8C-N8WTWafJdgZeB5s&callback=initMap">
+    </script>
+    <script>
+        let map;
+        let infowindow;  // Added infowindow variable
+
+
+        async function initMap() {
+            var activity_lat = {{ activity_lat|safe }};
+            var activity_long = {{ activity_long|safe }};
+            var gas_lat = {{ gas_lat|safe }};
+            var gas_long = {{ gas_long|safe }};
+            var restaurant_lat = {{ restaurant_lat|safe }};
+            var restaurant_long = {{ restaurant_long|safe }};
+            const position = { lat: 38.0336, lng: -78.5080 };
+
+            const { Map } = await google.maps.importLibrary("maps");
+
+            map = new Map(document.getElementById("map"), {
+                zoom: 10,
+                center: position,
+                mapId: "DEMO_MAP_ID",
+            });
+
+            infowindow = new google.maps.InfoWindow();
+
+            const gas_marker = new google.maps.Marker({
+                position: { lat: parseFloat(gas_lat), lng: parseFloat(gas_long) },
+                map: map,
+                title: '{{gas}}',
+            });
+
+            const activity_marker = new google.maps.Marker({
+                position: { lat: parseFloat(activity_lat), lng: parseFloat(activity_long) },
+                map: map,
+                title: '{{activity}}',
+            });
+
+            const restaurant_marker = new google.maps.Marker({
+                position: { lat: parseFloat(restaurant_lat), lng: parseFloat(restaurant_long) },
+                map: map,
+                title: '{{restaurant}}',
+            });
+
+            activity_marker.addListener('click', function () {
+                infowindow.setContent('{{activity}}');
+                infowindow.open(map, activity_marker);
+            });
+
+            restaurant_marker.addListener('click', function () {
+                infowindow.setContent('{{restaurant}}');
+                infowindow.open(map, restaurant_marker);
+            });
+
+            gas_marker.addListener('click', function () {
+                infowindow.setContent('{{gas}}');
+                infowindow.open(map, gas_marker);
+            });
+
+        }
+    </script>
+
+   <title>Map</title>
+
+   <style>
+       .logo {
+           max-width: 400px;
+       }
+   </style>
+</head>
+<body>
+<div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow justify-content-between">
+   <img class="logo" src="{% static 'users/images/logo.png' %}" alt="Logo">
+   <div>
+        <a class="btn btn-outline-dark" href="{% url 'users:home' %}">Home</a>
+        <a class="btn btn-outline-dark" href="{% url 'users:submit_review' %}">Propose New Location</a>
+        <a class="btn btn-outline-dark" href="{% url 'users:form' %}">Create Itinerary</a>
+        <a class="btn btn-outline-dark" href="{% url 'users:all_locations' %}">All Locations</a>
+        <a class="btn btn-outline-danger ml-3" href="{% url 'users:logout_view' %}">Logout</a>
+   </div>
+</div>
+<div class="container text-center mt-5">
+   <h3>Charlottesville Map</h3>
+</div>
+
+<div id="map" style="width:100%;height:400px"></div>
+
